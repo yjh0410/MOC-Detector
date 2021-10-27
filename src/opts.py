@@ -28,7 +28,7 @@ class opts(object):
                                  help='length of input, 1 for rgb, 5 for flow by default')
 
         # model seeting
-        self.parser.add_argument('--arch', default='dla_34',
+        self.parser.add_argument('--arch', default='resnet_50',
                                  help='model architecture. Currently tested'
                                       'resnet_18 | resnet_101 | dla_34')
         self.parser.add_argument('--set_head_conv', type=int, default=-1,
@@ -58,6 +58,8 @@ class opts(object):
                                  help='total training epochs.')
 
         # dataset seetings
+        self.parser.add_argument('--root_dir', default='/mnt/share/ssd2/dataset/STAD/',
+                                 help='root to dataset')
         self.parser.add_argument('--dataset', default='ucf101',
                                  help='ucf101 | hmdb')
         self.parser.add_argument('--split', type=int, default=1,
@@ -119,6 +121,11 @@ class opts(object):
         self.parser.add_argument('--print_log', action='store_true',
                                  help='print log info')
 
+        # tensorboard
+        self.parser.add_argument('--tfboard', action='store_true', default=False,
+                                 help='use tensorboard')
+                                 
+
     def parse(self, args=''):
         if args == '':
             opt = self.parser.parse_args()
@@ -152,7 +159,11 @@ class opts(object):
                 slave_chunk_size += 1
             opt.chunk_sizes.append(slave_chunk_size)
 
-        opt.root_dir = os.path.join(os.path.dirname(__file__), '..')
+        # opt.root_dir = os.path.join(os.path.dirname(__file__), '..')ucf101 | hmdb
+        if opt.dataset == 'ucf101':          
+            opt.root_dir = os.path.join(opt.root_dir, 'UCF101_24')
+        elif opt.dataset == 'hmdb':
+            opt.root_dir = os.path.join(opt.root_dir, 'JHMDB')
         opt.save_dir = opt.rgb_model if opt.rgb_model != '' else opt.flow_model
         opt.log_dir = opt.save_dir + '/logs_tensorboardX'
 

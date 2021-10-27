@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import math
 from torch import nn
-from .DCNv2.dcn_v2 import DCN
+from .DCNv2.dcn import DeformableConv2d as DCN
 
 
 def fill_up_weights(up):
@@ -59,9 +59,11 @@ class deconv_layers(nn.Module):
                 self._get_deconv_cfg(num_kernels[i], i)
 
             planes = num_filters[i]
-            fc = DCN(self.inplanes, planes,
-                     kernel_size=(3, 3), stride=1,
-                     padding=1, dilation=1, deformable_groups=1)
+            fc = DCN(self.inplanes, 
+                     planes,
+                     kernel_size=3, 
+                     stride=1,
+                     padding=1)
 
             up = nn.ConvTranspose2d(
                 in_channels=planes,

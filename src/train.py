@@ -15,7 +15,6 @@ from inference.stream_inference import stream_inference
 from ACT import frameAP
 import numpy as np
 import random
-import tensorboardX
 
 
 GLOBAL_SEED = 317
@@ -35,6 +34,7 @@ def worker_init_fn(dump):
 
 def main(opt):
     set_seed(opt.seed)
+    print(opt)
 
     torch.backends.cudnn.benchmark = True
     print()
@@ -42,12 +42,20 @@ def main(opt):
     Dataset = get_dataset(opt.dataset)
     opt = opts().update_dataset(opt, Dataset)
 
-    train_writer = tensorboardX.SummaryWriter(log_dir=os.path.join(opt.log_dir, 'train'))
-    epoch_train_writer = tensorboardX.SummaryWriter(log_dir=os.path.join(opt.log_dir, 'train_epoch'))
-    val_writer = tensorboardX.SummaryWriter(log_dir=os.path.join(opt.log_dir, 'val'))
-    epoch_val_writer = tensorboardX.SummaryWriter(log_dir=os.path.join(opt.log_dir, 'val_epoch'))
+    if opt.tfboard:
+        from torch.utils.tensorboard import SummaryWriter
+        train_writer = SummaryWriter(log_dir=os.path.join(opt.log_dir, 'train'))
+        epoch_train_writer = SummaryWriter(log_dir=os.path.join(opt.log_dir, 'train_epoch'))
+        val_writer = SummaryWriter(log_dir=os.path.join(opt.log_dir, 'val'))
+        epoch_val_writer = SummaryWriter(log_dir=os.path.join(opt.log_dir, 'val_epoch'))
+        logger = Logger(opt, epoch_train_writer, epoch_val_writer)
+    else:
+        train_writer = None
+        epoch_train_writer = None
+        val_writer = None
+        epoch_val_writer = None
+        logger = None
 
-    logger = Logger(opt, epoch_train_writer, epoch_val_writer)
 
     os.environ['CUDA_VISIBLE_DEVICES'] = opt.gpus_str
     opt.device = torch.device('cuda' if opt.gpus[0] >= 0 else 'cpu')
@@ -94,11 +102,12 @@ def main(opt):
     for epoch in range(start_epoch + 1, opt.num_epochs + 1):
         print('eopch is ', epoch)
         log_dict_train = trainer.train(epoch, train_loader, train_writer)
-        logger.write('epoch: {} |'.format(epoch))
-        for k, v in log_dict_train.items():
-            logger.scalar_summary('epcho/{}'.format(k), v, epoch, 'train')
-            logger.write('train: {} {:8f} | '.format(k, v))
-        logger.write('\n')
+        if logger is not None:
+            logger.write('epoch: {} |'.format(epoch))
+            for k, v in log_dict_train.items():
+                logger.scalar_summary('epcho/{}'.format(k), v, epoch, 'train')
+                logger.write('train: {} {:8f} | '.format(k, v))
+            logger.write('\n')
         if opt.save_all and not opt.auto_stop:
             time_str = time.strftime('%Y-%m-%d-%H-%M')
             model_name = 'model_[{}]_{}.pth'.format(epoch, time_str)
@@ -113,10 +122,12 @@ def main(opt):
         if opt.val_epoch:
             with torch.no_grad():
                 log_dict_val = trainer.val(epoch, val_loader, val_writer)
-            for k, v in log_dict_val.items():
-                logger.scalar_summary('epcho/{}'.format(k), v, epoch, 'val')
-                logger.write('val: {} {:8f} | '.format(k, v))
-        logger.write('\n')
+            if logger is not None:
+                for k, v in log_dict_val.items():
+                    logger.scalar_summary('epcho/{}'.format(k), v, epoch, 'val')
+                    logger.write('val: {} {:8f} | '.format(k, v))
+        if logger is not None:
+            logger.write('\n')
 
         if opt.auto_stop:
             tmp_rgb_model = opt.rgb_model
@@ -138,7 +149,8 @@ def main(opt):
                 model, optimizer, _, _ = load_model(
                     model, os.path.join(opt.save_dir, 'model_best.pth'), optimizer, opt.lr)
                 opt.lr = opt.lr * 0.1
-                logger.write('Drop LR to ' + str(opt.lr) + '\n')
+                if logger is not None:
+                    logger.write('Drop LR to ' + str(opt.lr) + '\n')
                 print('Drop LR to ' + str(opt.lr))
                 print('load epoch is ', best_epoch)
                 for param_group in optimizer.param_groups:
@@ -155,13 +167,14 @@ def main(opt):
             # this step drop lr
             if epoch in opt.lr_step:
                 lr = opt.lr * (0.1 ** (opt.lr_step.index(epoch) + 1))
-                logger.write('Drop LR to ' + str(lr) + '\n')
+                if logger is not None:
+                    logger.write('Drop LR to ' + str(lr) + '\n')
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = lr
     if opt.auto_stop:
         print('best epoch is ', best_epoch)
-
-    logger.close()
+    if logger is not None:
+        logger.close()
 
 
 if __name__ == '__main__':

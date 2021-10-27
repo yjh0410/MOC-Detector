@@ -1,0 +1,15 @@
+python src/train.py \
+        --K 7 \
+        --root_dir /home/jxk/dataset/STAD/ \
+        --exp_id Train_K7_rgb_coco \
+        --rgb_model weights \
+        --batch_size 32 \
+        --master_batch 32 \
+        --lr 5e-4 \
+        --gpus 0 \
+        --num_workers 8 \
+        --num_epochs 12 \
+        --lr_step 6,8 \
+        --tfboard \
+        --save_all \
+        --arch resnet_18

@@ -74,6 +74,6 @@ class RegL1Loss(torch.nn.Module):
         mask = mask.unsqueeze(2).expand_as(pred).float()
         # print(pred.shape)
         # loss = F.l1_loss(pred * mask, target * mask, reduction='elementwise_mean')
-        loss = F.l1_loss(pred * mask, target * mask, size_average=False)
+        loss = F.l1_loss(pred * mask, target * mask, reduction='sum')
         loss = loss / (mask.sum() + 1e-4)
         return loss
