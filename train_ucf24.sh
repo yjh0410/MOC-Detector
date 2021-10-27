@@ -1,6 +1,6 @@
 python src/train.py \
         --K 7 \
-        --root_dir /home/jxk/dataset/STAD/ \
+        --root_dir /home/jxk/STAD/dataset/ \
         --exp_id Train_K7_rgb_coco \
         --rgb_model weights \
         --batch_size 32 \
