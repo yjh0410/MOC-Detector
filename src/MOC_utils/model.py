@@ -143,13 +143,13 @@ def load_imagenet_pretrained_model(opt, model):
 def load_coco_pretrained_model(opt, model):
     if opt.arch == 'dla_34':
         print('load coco pretrained dla_34')
-        model_path = '../experiment/modelzoo/coco_dla.pth'
+        model_path = 'experiment/modelzoo/coco_dla.pth'
     elif opt.arch == 'resnet_18':
         print('load coco pretrained resnet_18')
-        model_path = '../experiment/modelzoo/coco_resdcn18.pth'
+        model_path = 'experiment/modelzoo/coco_resdcn18.pth'
     elif opt.arch == 'resnet_101':
         print('load coco pretrained resnet_101')
-        model_path = '../experiment/modelzoo/coco_resdcn101.pth'
+        model_path = 'experiment/modelzoo/coco_resdcn101.pth'
     else:
         raise NotImplementedError
     checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage)
