@@ -1,4 +1,4 @@
-python vis_det.py \
+python src/vis/vis_det.py \
         --rgb_model ../../weights/resnet18_ucf24.pth \
         --vname v_SalsaSpin_g03_c06.mp4 \
         --arch resnet_18
