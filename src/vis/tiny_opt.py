@@ -10,7 +10,7 @@ class opts(object):
         self.parser = argparse.ArgumentParser()
 
         # basical experiment settings
-        self.parser.add_argument('--DATA_ROOT', default='../../data/ucf_test_videos',
+        self.parser.add_argument('--DATA_ROOT', default='/mnt/share/ssd2/dataset/STAD/UCF101_24/ucf_test_videos',
                                  help='dataset root path')
         self.parser.add_argument('--inference_dir', default='result_video',
                                  help='vis inference_dir')
@@ -65,7 +65,7 @@ class opts(object):
                                  help='rgb : th, flow: 1 - th')
 
         # debug
-        self.parser.add_argument('--IMAGE_ROOT', default='../../data/ucf24',
+        self.parser.add_argument('--IMAGE_ROOT', default='/mnt/share/ssd2/dataset/STAD/UCF101_24/',
                                  help='dataset root path')
         self.parser.add_argument('--pre_extracted_brox_flow', action='store_true',
                                  help='use pre-extracted brox flow and image frames')
