@@ -7,6 +7,7 @@ data/*
 experiment/*
 result/*
 __pycache__/
+.vscode
 *.so
 _ext/
 test.sh
@@ -26,3 +27,4 @@ ACT2.py
 train2.py
 DCNv2_1.3/
 DCNv2_1.5/
+weights/logs_tensorboardX/*
