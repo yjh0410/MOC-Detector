@@ -32,6 +32,7 @@ class TubeDataset(object):
         self.SPLIT = split
 
         cache_file = os.path.join(CAFFE_PATH, 'cache', dname + '-GT.pkl')
+        print(cache_file)
         assert os.path.isfile(cache_file), "Missing cache file for dataset " + dname
 
         with open(cache_file, 'rb') as fid:
